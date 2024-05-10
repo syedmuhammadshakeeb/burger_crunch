@@ -1,6 +1,9 @@
+import 'package:burger_crunch/Views/home_view/home_view.dart';
 import 'package:burger_crunch/res/components/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
@@ -81,7 +84,9 @@ class _LoginViewState extends State<LoginView> {
               CustomButton(
                   text: 'Send OTP',
                   colors: const Color(0xffE85807),
-                  ontap: () {}),
+                  ontap: () {
+                    Get.to(HomeView());
+                  }),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.03,
               ),
