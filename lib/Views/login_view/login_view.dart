@@ -1,5 +1,8 @@
 import 'package:burger_crunch/Views/home_view/home_view.dart';
+import 'package:burger_crunch/Views/otp_view/otp_view.dart';
 import 'package:burger_crunch/res/components/button.dart';
+import 'package:burger_crunch/res/components/custom_navbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -15,6 +18,50 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  final phoneController = TextEditingController();
+  final auth = FirebaseAuth.instance;
+  String _countryCode = '';
+  bool loading = false;
+
+  Future loginWithOtp() async {
+    try {
+      loading = false;
+      await auth.verifyPhoneNumber(
+          phoneNumber: '$_countryCode ${phoneController.text.toString()}',
+          verificationCompleted: (_) {},
+          verificationFailed: (e) {
+            setState(() {
+              loading = false;
+            });
+            Get.snackbar('Request failed!', '${e.toString()}',
+                backgroundColor: Colors.red.withOpacity(0.5));
+          },
+          codeSent: ((verificationId, forceResendingToken) {
+            Get.to(OtpView(
+              number: phoneController.text.toString(),
+              verificationId: verificationId,
+            ));
+          }),
+          codeAutoRetrievalTimeout: (e) {
+            setState(() {
+              loading = false;
+            });
+            Get.snackbar('Request failed!', '${e.toString()}',
+                backgroundColor: Colors.red.withOpacity(0.5));
+          });
+    } catch (e) {
+      setState(() {
+        loading = false;
+      });
+      Get.snackbar('Request failed!', '${e.toString()}',
+          backgroundColor: Colors.red.withOpacity(0.5));
+    } finally {
+      setState(() {
+        loading = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +103,14 @@ class _LoginViewState extends State<LoginView> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: IntlPhoneField(
+                  onChanged: (phone) {
+                    setState(() {
+                      _countryCode = phone.countryCode;
+                      print('---->>$_countryCode');
+                    });
+                  },
+                  initialValue: '+92',
+                  controller: phoneController,
                   flagsButtonPadding:
                       const EdgeInsets.symmetric(horizontal: 10),
                   cursorColor: Colors.white,
@@ -82,10 +137,11 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
               CustomButton(
-                  text: 'Send OTP',
+                  loading: loading,
+                  text: 'Sent OTP',
                   colors: const Color(0xffE85807),
                   ontap: () {
-                    Get.to(HomeView());
+                    loginWithOtp();
                   }),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.03,

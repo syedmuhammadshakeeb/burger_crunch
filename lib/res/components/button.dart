@@ -6,11 +6,13 @@ class CustomButton extends StatefulWidget {
   final icon;
   void Function() ontap;
   final colors;
+  bool loading;
   CustomButton(
       {super.key,
       required this.text,
       this.icon,
       required this.ontap,
+      required this.loading,
       this.colors});
 
   @override
@@ -38,15 +40,19 @@ class _CustomButtonState extends State<CustomButton> {
               color: Colors.white,
               size: 27.5,
             ),
-            Text(
-              widget.text,
-              style: GoogleFonts.inter(
-                  textStyle: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              )),
-            ),
+            widget.loading
+                ? const CircularProgressIndicator(
+                    color: Colors.white,
+                  )
+                : Text(
+                    widget.text,
+                    style: GoogleFonts.inter(
+                        textStyle: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    )),
+                  ),
           ],
         ),
       ),

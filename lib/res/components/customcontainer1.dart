@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomContainer1 extends StatefulWidget {
-  const CustomContainer1({super.key});
+  const CustomContainer1({
+    super.key,
+  });
 
   @override
   State<CustomContainer1> createState() => _CustomContainer1State();
@@ -40,7 +42,9 @@ class _CustomContainer1State extends State<CustomContainer1> {
                       Positioned(
                           top: 40,
                           left: 20,
-                          child: Image.asset('assets/images/75%.png')),
+                          child: Image.asset(
+                            'assets/images/75%.png',
+                          )),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Column(

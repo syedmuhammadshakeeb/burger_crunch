@@ -1,16 +1,33 @@
+import 'package:burger_crunch/controller/iitemcontroller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Container2 extends StatefulWidget {
   final gradient;
-  const Container2({super.key, required this.gradient});
+  final favourite;
+  final image;
+  String text;
+  String rating;
+  String price;
+
+  Container2({
+    super.key,
+    required this.gradient,
+    required this.favourite,
+    required this.image,
+    required this.text,
+    required this.rating,
+    required this.price,
+  });
 
   @override
   State<Container2> createState() => _Container2State();
 }
 
 class _Container2State extends State<Container2> {
+  final controller = Get.put(ItemData());
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -30,7 +47,10 @@ class _Container2State extends State<Container2> {
                 width: 168,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    gradient: widget.gradient),
+                    gradient: LinearGradient(
+                        colors: widget.gradient,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight)),
                 child: Stack(
                   children: [
                     Column(
@@ -40,7 +60,7 @@ class _Container2State extends State<Container2> {
                         ),
                         Center(
                           child: Image.asset(
-                            'assets/images/burger1.png',
+                            widget.image,
                             height: 82,
                             width: 115,
                           ),
@@ -50,7 +70,7 @@ class _Container2State extends State<Container2> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Double Beef P...',
+                              widget.text,
                               style: GoogleFonts.inter(
                                   textStyle: const TextStyle(
                                       fontSize: 18,
@@ -58,7 +78,7 @@ class _Container2State extends State<Container2> {
                                       color: Colors.white)),
                             ),
                             Text(
-                              '4.8 rating',
+                              '${widget.rating} rating',
                               style: GoogleFonts.inter(
                                   textStyle: const TextStyle(
                                       fontSize: 7,
@@ -66,7 +86,7 @@ class _Container2State extends State<Container2> {
                                       color: Colors.white)),
                             ),
                             Text(
-                              '8.00',
+                              widget.price.toString(),
                               style: GoogleFonts.inter(
                                   textStyle: const TextStyle(
                                       fontSize: 12,
@@ -86,10 +106,7 @@ class _Container2State extends State<Container2> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(100),
                             color: Colors.white),
-                        child: const Icon(
-                          Icons.favorite_border_outlined,
-                          size: 16.61,
-                        ),
+                        child: widget.favourite,
                       ),
                     )
                   ],
@@ -97,20 +114,18 @@ class _Container2State extends State<Container2> {
               ),
             ),
             Positioned(
-              bottom: 5,
-              right: 0,
+              bottom: MediaQuery.of(context).size.height * 0.0015,
+              right: MediaQuery.of(context).size.width * 0,
               child: Container(
-                height: 38,
-                width: 38,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Colors.white),
-                child: const Icon(
-                  Icons.add,
-                  color: Color(0xffE85D07),
-                  size: 23,
-                ),
-              ),
+                  height: 38,
+                  width: 38,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      gradient: const LinearGradient(
+                          colors: [Color(0xff8A8A8A), Color(0xff242424)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight)),
+                  child: Image.asset('assets/icons/add_icon.png')),
             )
           ],
         ),

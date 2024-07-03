@@ -1,4 +1,5 @@
 import 'package:burger_crunch/Views/login_view/login_view.dart';
+import 'package:burger_crunch/Views/service.dart';
 import 'package:burger_crunch/res/components/button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,9 +37,10 @@ class _SplashViewState extends State<SplashView> {
           )),
           const Spacer(),
           CustomButton(
+            loading: false,
             text: 'Get Started',
             ontap: () {
-              Get.to(const LoginView());
+              routeService().userServices();
             },
             colors: const Color(0xffE85807),
             icon: Icons.arrow_forward,

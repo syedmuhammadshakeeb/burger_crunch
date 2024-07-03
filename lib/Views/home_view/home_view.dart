@@ -1,8 +1,10 @@
-import 'package:burger_crunch/res/components/chip.dart';
+import 'package:burger_crunch/Views/item_view/home_item_view.dart';
+import 'package:burger_crunch/controller/iitemcontroller.dart';
 import 'package:burger_crunch/res/components/container2.dart';
 import 'package:burger_crunch/res/components/conteiner3.dart';
 import 'package:burger_crunch/res/components/customcontainer1.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeView extends StatefulWidget {
@@ -13,29 +15,38 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  bool isSelected = false;
+  final searchController = TextEditingController();
+  final controller = Get.put(ItemData());
+  List<String> filtertext = [
+    'All',
+    'Burgers',
+    'Fried Chicken',
+    'Fries',
+    'Broast',
+    'Tikka'
+  ];
+
+  List<String> selected = [];
+  String search = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // selected = List.generate(filtertext.length, (index) => index == 0);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final filterProduct = controller.items.where((product) {
+      // return selected.isEmpty || selected.contains(product['category']);
+      if (selected.isEmpty || selected.contains('All')) {
+        return true; // Show all products if selected is empty or "All"
+      } else {
+        return selected
+            .contains(product['category']); // Filter by category otherwise
+      }
+    }).toList();
     return Scaffold(
-      bottomNavigationBar: Container(
-        height: 60,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.black,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Image.asset('assets/images/nv1.png'),
-              Image.asset('assets/images/nv2.png'),
-              Image.asset('assets/images/nv3.png'),
-              Image.asset('assets/images/nv4.png'),
-            ],
-          ),
-        ),
-      ),
       body: SingleChildScrollView(
         child: Container(
           decoration: const BoxDecoration(
@@ -122,6 +133,7 @@ class _HomeViewState extends State<HomeView> {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: TextFormField(
+                  controller: searchController,
                   decoration: InputDecoration(
                     prefixIcon: Image.asset(
                       'assets/icons/search_icon.png',
@@ -144,125 +156,258 @@ class _HomeViewState extends State<HomeView> {
                     fillColor: Colors.grey.shade800,
                     filled: true,
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      search = value.toString();
+                    });
+                  },
                 ),
               ),
               Container(
-                height: 155,
-                width: double.infinity,
-                color: Colors.transparent,
-                child: const SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      CustomContainer1(),
-                      CustomContainer1(),
-                      CustomContainer1(),
-                      CustomContainer1()
-                    ],
-                  ),
-                ),
-              ),
+                  height: 155,
+                  width: double.infinity,
+                  color: Colors.transparent,
+                  child: Expanded(
+                      child: ListView.builder(
+                          itemCount: 3,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            return const CustomContainer1();
+                          }))),
               const SizedBox(
                 height: 20,
               ),
               SizedBox(
-                height: 30,
-                child: Expanded(
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    children: [
-                      ChipWidget(
-                        text: 'All',
-                        colors: isSelected
-                            ? const Color(0xffD9D9D9)
-                            : Colors.transparent,
-                        ontap: () {},
-                        textcolor: const Color(0xffD9D9D9),
-                      ),
-                      ChipWidget(
-                        text: 'Burgers',
-                        colors: const Color(0xffD9D9D9),
-                        ontap: () {},
-                        textcolor: Colors.black,
-                      ),
-                      ChipWidget(
-                        text: 'Fried Chicken',
-                        colors: isSelected
-                            ? const Color(0xffD9D9D9)
-                            : Colors.transparent,
-                        ontap: () {},
-                        textcolor: const Color(0xffD9D9D9),
-                      ),
-                      ChipWidget(
-                        text: 'Fries',
-                        colors: isSelected
-                            ? const Color(0xffD9D9D9)
-                            : Colors.transparent,
-                        ontap: () {},
-                        textcolor: const Color(0xffD9D9D9),
-                      ),
-                      ChipWidget(
-                        text: 'Broast',
-                        colors: isSelected
-                            ? const Color(0xffD9D9D9)
-                            : Colors.transparent,
-                        ontap: () {
-                          setState(() {
-                            isSelected = !isSelected;
-                          });
+                height: 50,
+                child: filtertext.isEmpty
+                    ? const Center(
+                        child: Text(
+                            'No filters available')) // Placeholder for empty list
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: filtertext.length,
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 5.0),
+                            child: FilterChip(
+                              label: Text(
+                                filtertext[index],
+                                style: TextStyle(
+                                  color: selected.contains(filtertext[index])
+                                      ? Colors.black
+                                      : Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              showCheckmark: false,
+                              backgroundColor:
+                                  selected.contains(filtertext[index])
+                                      ? const Color(0xffD9D9D9)
+                                      : Colors.transparent,
+                              selectedColor:
+                                  selected.contains(filtertext[index])
+                                      ? const Color(0xffD9D9D9)
+                                      : const Color(0xffD9D9D9),
+                              onSelected: (Value) {
+                                setState(() {
+                                  if (selected.contains(filtertext[index])) {
+                                    selected.remove(filtertext[index]);
+                                  } else {
+                                    selected.clear();
+                                    selected.add(filtertext[index]);
+                                  }
+                                });
+                              },
+                            ),
+                          );
                         },
-                        textcolor: const Color(0xffD9D9D9),
                       ),
-                      ChipWidget(
-                        text: 'Tikka',
-                        colors: isSelected
-                            ? const Color(0xffD9D9D9)
-                            : Colors.transparent,
-                        ontap: () {
-                          setState(() {
-                            isSelected = !isSelected;
-                          });
-                        },
-                        textcolor: const Color(0xffD9D9D9),
-                      ),
-                    ],
-                  ),
-                ),
               ),
               SizedBox(
                 height: 200,
-                child: Expanded(
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    children: [
-                      Container2(
-                        gradient: LinearGradient(
-                            colors: [
-                              const Color(0xffEFC741),
-                              const Color(0xffE85807).withOpacity(0.70),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight),
-                      ),
-                      const Container2(
-                        gradient: LinearGradient(
-                            colors: [Color(0xff1F1F1F), Color(0xff1F1F1F)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight),
-                      ),
-                      Container2(
-                        gradient: LinearGradient(
-                            colors: [
-                              const Color(0xffEFC741),
-                              const Color(0xffE85807).withOpacity(0.70),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight),
-                      ),
-                    ],
-                  ),
+                child: ListView.builder(
+                  itemCount: filterProduct.length,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    final products = filterProduct[index];
+                    String position = controller.items[index]["name"];
+                    String uniqueTag =
+                        'tag-$index'; // It's better to make this unique for each item
+                    if (searchController.text.isEmpty &&
+                        filtertext.contains('All')) {
+                      return InkWell(
+                        onTap: () {
+                          // Check if the favourateList is not empty and the index is valid
+                          if (controller.favourateList.isNotEmpty &&
+                              index < controller.favourateList.length) {
+                            Get.to(HomeItemView(
+                              ontap: () {
+                                setState(() {
+                                  controller.addToCart
+                                      .add(controller.items[index]);
+                                  print('--------->>${controller.addToCart}');
+                                });
+                              },
+                              price: products['price'].toString() ?? '',
+                              name: products['name'],
+                              fav: products['isfav'],
+                              tag: uniqueTag,
+                              image: const AssetImage(
+                                  'assets/images/big_burger.png'),
+                            ));
+                          } else {
+                            // Ensure the index is valid for items list as well
+                            if (index < controller.items.length) {
+                              Get.to(HomeItemView(
+                                ontap: () {
+                                  setState(() {
+                                    controller.addToCart
+                                        .add(controller.items[index]);
+                                    print('--------->>${controller.addToCart}');
+                                  });
+                                },
+                                price: products['price'].toString() ?? '',
+                                name: products['name'],
+                                tag: uniqueTag,
+                                image: AssetImage('${products['image']}'),
+                              ));
+                            }
+                          }
+                        },
+                        child: Hero(
+                          tag: uniqueTag,
+                          child: Container2(
+                            gradient: products['color'],
+                            favourite: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  if (products['isfav']) {
+                                    controller.items[index]['isfav'] = false;
+                                    controller.favourateList
+                                        .remove(controller.items[index]);
+                                    print(controller.favourateList);
+                                  } else {
+                                    products['isfav'] = true;
+                                    controller.favourateList
+                                        .add(controller.items[index]);
+                                    print(controller.favourateList);
+                                  }
+                                });
+                              },
+                              child: products['isfav'] == true
+                                  ? const Icon(
+                                      Icons.favorite,
+                                      size: 16.61,
+                                      color: Colors.red,
+                                    )
+                                  : const Icon(
+                                      Icons.favorite_border_outlined,
+                                      size: 16.61,
+                                      color: Colors.black,
+                                    ),
+                            ),
+                            image: products['image'],
+                            text: products['name'],
+                            price: products['price'].toString(),
+                            rating: products['rating'],
+                          ),
+                        ),
+                      );
+                    } else if (position
+                        .toLowerCase()
+                        .contains(searchController.text.toLowerCase())) {
+                      return InkWell(
+                        onTap: () {
+                          // Check if the favourateList is not empty and the index is valid
+                          if (controller.favourateList.isNotEmpty &&
+                              index < controller.favourateList.length) {
+                            Get.to(HomeItemView(
+                              ontap: () {
+                                setState(() {
+                                  controller.addToCart
+                                      .add(controller.items[index]);
+                                  print('--------->>${controller.addToCart}');
+                                });
+                              },
+                              price:
+                                  controller.items[index]['price'].toString() ??
+                                      '',
+                              name: position,
+                              fav: controller.favourateList[index]['isfav'],
+                              tag: uniqueTag,
+                              image: const AssetImage(
+                                  'assets/images/big_burger.png'),
+                            ));
+                          } else {
+                            // Ensure the index is valid for items list as well
+                            if (index < controller.items.length) {
+                              Get.to(HomeItemView(
+                                ontap: () {
+                                  setState(() {
+                                    controller.addToCart
+                                        .add(controller.items[index]);
+                                    print('--------->>${controller.addToCart}');
+                                  });
+                                },
+                                price: controller.items[index]['price']
+                                        .toString() ??
+                                    '',
+                                name: position,
+                                tag: uniqueTag,
+                                image: AssetImage(
+                                    '${controller.items[index]['image']}'),
+                              ));
+                            }
+                          }
+                        },
+                        child: Hero(
+                          tag: uniqueTag,
+                          child: Container2(
+                            gradient: controller.items[index]['color'],
+                            favourite: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  if (controller.items[index]['isfav']) {
+                                    controller.items[index]['isfav'] = false;
+                                    controller.favourateList
+                                        .remove(controller.items[index]);
+                                    print(controller.favourateList);
+                                  } else {
+                                    controller.items[index]['isfav'] = true;
+                                    controller.favourateList
+                                        .add(controller.items[index]);
+                                    print(controller.favourateList);
+                                  }
+                                });
+                              },
+                              child: controller.items[index]['isfav'] == true
+                                  ? const Icon(
+                                      Icons.favorite,
+                                      size: 16.61,
+                                      color: Colors.red,
+                                    )
+                                  : const Icon(
+                                      Icons.favorite_border_outlined,
+                                      size: 16.61,
+                                      color: Colors.black,
+                                    ),
+                            ),
+                            image: controller.items[index]['image'],
+                            text: position,
+                            price: controller.items[index]['price'].toString(),
+                            rating: controller.items[index]['rating'],
+                          ),
+                        ),
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
                 ),
               ),
               Padding(
